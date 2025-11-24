@@ -11,8 +11,12 @@ The goal of this project is to **really understand** the building blocks of ML:
   - Linear algebra → vectors, matrices, matrix multiplication, transpose, inverse, eigenvalues/eigenvectors (intuitive)
   - Probability & statistics → normal distribution, mean, variance, covariance, correlation
   - Calculus → derivative & gradient, gradient descent in 1D
+- Manual statistics & standardization (Project 0.2):
+  - Implement mean / variance / std *by hand* with NumPy
+  - Standardization (z-score) for 1D and 2D data
+  - Understanding `axis` and broadcasting on matrices
 
-Each file in `src/` is a small, focused script with clean code and comments in English, designed to be readable on GitHub and to generate visual outputs in the `plots/` folder.
+Each file in `src/` is a small, focused script with clean code and comments in English, designed to be readable on GitHub and to generate visual outputs in the `plots/` folder where it makes sense.
 
 ---
 
@@ -24,7 +28,8 @@ ml-project-0-foundations/
     │   ├─ numpy_basics.py               # vectors, matrices, dot, matmul, transpose, broadcasting
     │   ├─ linear_algebra_demo.py        # solving Ax=b, determinant, inverse, eigenvalues/vectors
     │   ├─ stats_basics.py               # mean, variance, covariance, correlation, normal dist + plots
-    │   └─ gradient_descent_demo.py      # 1D gradient descent on f(w) = (w - 3)^2
+    │   ├─ gradient_descent_demo.py      # 1D gradient descent on f(w) = (w - 3)^2
+    │   └─ numpy_manual_stats.py         # Project 0.2: manual mean/var/std + standardization (1D & 2D)
     ├─ plots/
     │   ├─ numpy_A_matrix.txt
     │   ├─ numpy_B_matrix.txt
@@ -42,7 +47,6 @@ ml-project-0-foundations/
 ## ⚙️ Setup
 
 ```bash
-
 python -m venv .venv
 source .venv/bin/activate   # Windows: .venv\Scripts\activate
 
@@ -140,7 +144,7 @@ python src/stats_basics.py
 - Analytic derivative: \(f'(w) = 2(w - 3)\)
 - Gradient descent update:
   \[
-  w_{\text{new}} = w_{\text{old}} - \eta \cdot f'(w_{\text{old}})
+  w_{ ext{new}} = w_{ ext{old}} - \eta \cdot f'(w_{ ext{old}})
   \]
 
 **Run:**
@@ -154,6 +158,125 @@ python src/gradient_descent_demo.py
 Gradient descent steps (red dots) moving towards the minimum at \(w = 3\):
 
 ![Gradient Descent 1D](plots/gradient_descent_1d.png)
+
+---
+
+### 5. `numpy_manual_stats.py` (Project 0.2 – Manual statistics & standardization)
+
+This script is where you stop being scared of matrices and `axis` arguments.
+
+**Goals:**
+
+- Implement **manual statistics** using NumPy building blocks (no `np.mean`, `np.var`, `np.std` inside):
+  - `manual_mean(x, axis=None)`
+  - `manual_variance(x, axis=None, ddof=0)`
+  - `manual_std(x, axis=None, ddof=0)`
+- Implement **standardization (z-score)**:
+  - `standardize_1d(x)` for 1D arrays
+  - `standardize_features(X)` for 2D data shaped as `(n_samples, n_features)`
+- Build real intuition for:
+  - how `axis=0` vs `axis=1` work on matrices
+  - how broadcasting applies feature-wise means and stds
+  - why standardization is used everywhere in ML (e.g. before linear models, logistic regression, neural nets)
+
+**Run:**
+
+```bash
+python src/numpy_manual_stats.py
+```
+
+**What it does:**
+
+1. **Creates synthetic 2D data** `X` with shape `(n_samples, n_features)`:
+
+   - Think of columns as something like `[height, weight, age]` — each with different mean and std.
+   - This forces you to think **column-wise**, like real ML: `(n_samples, n_features)`.
+
+2. **Compares manual vs NumPy stats on a single feature:**
+
+   ```text
+   Means:
+     manual_mean_0 = ...
+     numpy_mean_0  = ...
+     difference    = ...
+
+   Variances (ddof=0):
+     manual_var_0  = ...
+     numpy_var_0   = ...
+     difference    = ...
+
+   Standard deviations (ddof=0):
+     manual_std_0  = ...
+     numpy_std_0   = ...
+     difference    = ...
+   ```
+
+   If the differences are essentially zero, your manual implementation is correct.
+
+3. **Computes column-wise stats with `axis=0`:**
+
+   ```text
+   Manual means per column: [ ... ... ... ]
+   NumPy  means per column: [ ... ... ... ]
+   Difference (means):      [ ~0 ~0 ~0 ]
+
+   Manual variances per column: [...]
+   NumPy  variances per column: [...]
+   Difference (variances):      [...]
+   ```
+
+   This is where you *feel* that:
+
+   - axis=0 → “aggregate over rows, get one number per column (per feature)”.
+
+4. **Standardizes all features (z-score per column):**
+
+   ```python
+   Z, means_used, stds_used = standardize_features(X, ddof=0)
+   ```
+
+   The script prints:
+
+   - `means_used` and `stds_used` for each feature.
+   - the standardized matrix `Z`.
+
+5. **Checks that standardized features have ~0 mean and ~1 std:**
+
+   ```text
+   Mean of each standardized column (should be close to 0):
+   [ 1e-16  ... ]
+
+   Std of each standardized column (should be close to 1):
+   [ 0.99... 1.00... 1.01... ]
+   ```
+
+**Why this matters for ML:**
+
+- In almost every ML pipeline you will see something like:
+
+  ```python
+  from sklearn.preprocessing import StandardScaler
+
+  scaler = StandardScaler()
+  X_scaled = scaler.fit_transform(X_train)
+  ```
+
+- This script shows that `StandardScaler` is basically:
+
+  \[
+  z = rac{x - \mu}{\sigma}
+  \]
+
+  applied **per feature**:
+
+  - compute `mean_j` and `std_j` for each column `j` over the training data
+  - subtract `mean_j` from each value in that column
+  - divide by `std_j`
+
+- You’re not just calling a black-box scaler — you understand:
+  - how and why it works,
+  - how it interacts with matrix shapes and broadcasting,
+  - and why it must be fit on the training set only (to avoid data leakage).
 
 ---
 
@@ -172,7 +295,12 @@ Gradient descent steps (red dots) moving towards the minimum at \(w = 3\):
 - **Covariance** → do two variables move together?
 - **Correlation** → normalized covariance, between -1 and 1.
 
+- **Standardization (z-score)** → make each feature have ~0 mean and ~1 std, so models that are sensitive to scale (like linear models, gradient-based methods) behave better.
+
 - **Gradient** → vector of partial derivatives; direction of steepest *increase*.
 - **Gradient descent** → move in the opposite direction of gradient to *minimize* a function.
 
 ---
+
+This Project 0 gives you the mental tools you need before touching “real” ML models:  
+vectors, matrices, stats, standardization, and what actually happens behind `StandardScaler` and `GradientDescent`.
