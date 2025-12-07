@@ -1,1 +1,114 @@
-/.venv
+# -----------------------------
+# OS / Editor junk
+# -----------------------------
+.DS_Store
+Thumbs.db
+
+.vscode/
+.idea/
+*.code-workspace
+
+# -----------------------------
+# Python / Packaging
+# -----------------------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+.eggs/
+*.egg-info/
+dist/
+build/
+
+# virtualenvs
+.venv/
+venv/
+env/
+ENV/
+
+# pyenv
+.python-version
+
+# -----------------------------
+# Jupyter
+# -----------------------------
+.ipynb_checkpoints/
+*.ipynb
+
+# -----------------------------
+# Test / Coverage
+# -----------------------------
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.cache/
+
+# mypy / type-checkers / linters (if you add them later)
+.mypy_cache/
+.ruff_cache/
+.pytype/
+.pyre/
+
+# -----------------------------
+# Logs
+# -----------------------------
+logs/
+*.log
+
+# -----------------------------
+# ML / Data artifacts
+# -----------------------------
+# raw / external data (Kaggle, etc.)
+data/**/*.csv
+data/**/*.parquet
+data/**/*.xlsx
+*/data/**/*.csv
+*/data/**/*.parquet
+*/data/**/*.xlsx
+
+# but allow keeping small readme markers in data folders
+!data/**/README.md
+!*/data/**/README.md
+!data/**/.gitkeep
+!*/data/**/.gitkeep
+
+# models (can always be retrained)
+models/
+*/models/
+
+# MLflow local runs directory
+mlruns/
+
+# DVC/other temp (if you add DVC later)
+*.dvc
+.dvc/
+.dag/
+.cache_dvc/
+
+# -----------------------------
+# Outputs / reports
+# -----------------------------
+# ignore all heavy outputs by default
+output/**/*
+*/output/**/*
+
+# but KEEP selected plots / summaries you actually show in README
+!output/**/plots/*.png
+!*/output/**/plots/*.png
+
+!output/**/summary/*.csv
+!*/output/**/summary/*.csv
+
+# if you want to keep specific metrics JSONs for docs:
+#!output/**/metrics/*.json
+#!*/output/**/metrics/*.json
+
+# -----------------------------
+# Docker / env
+# -----------------------------
+.env
+.env.*
+*.env
+docker-compose.override.yml
