@@ -1,59 +1,75 @@
-# 🧠 ML Project 0 – Python, Math & PyTorch Foundations
+# 🧠 ML Project 0 — Engineering-Grade Foundations
 
-End-to-end **foundations for Machine Learning** in pure Python and PyTorch, written as small, focused scripts (no notebooks).
+A resume-focused Machine Learning foundations project built with a **market-relevant technical stack** and scientific rigor.
 
-Goal: not just “run ML”, but **understand the building blocks** you will keep reusing in later projects, while keeping the codebase **engineering-grade** and interview-ready.
-
-This repository keeps a single canonical README at the root. The spotlight project is `0-foundations`.
-
----
-
-## 1. Problem Statement (Why This Exists)
-Most beginner ML repositories have one core weakness: they demonstrate concepts, but not engineering reliability.
-
-Primary problem:
-- Build a foundations project that is both educational and production-minded, not a collection of disconnected scripts.
-
-Success criteria:
-- One standard quality baseline (`pre-commit`, `ruff`, `mypy`, `pytest`)
-- Reproducible report artifacts with real metrics
-- Clear baseline-first evaluation (not only model loss)
-- Numerical stability practices implemented and tested
-- Training lifecycle controls (mixed precision, early stopping, checkpoint/resume, profiling)
+## 🌟 Key Achievements
+- Built an engineering-grade ML foundation repository with strict quality controls: `pre-commit`, `ruff`, `mypy`, `pytest`.
+- Implemented production-style training controls: mixed precision (AMP), early stopping, checkpointing, resume, and optional profiling.
+- Added numerical stability safeguards: stable log-sum-exp, overflow-safe softmax, and gradient clipping.
+- Established baseline-first evaluation discipline and achieved **32.04% MSE improvement** over naive forecasting baseline.
+- Created reproducible report artifacts for auditability and interview-ready storytelling.
 
 ---
 
-## 2. Tech Stack
+## 1. Problem Statement
+Most beginner ML repositories show training code but miss engineering reliability, traceability, and decision-quality reporting.
 
-**Languages & Core libs**
+This project addresses that gap by answering:
+- What was the problem?
+- What technology options were evaluated?
+- Why was each option selected?
+- What metrics prove effectiveness?
+- What risks appeared and how were they mitigated?
+
+Primary objective:
+- Transform foundational ML exercises into an **industry-ready, reproducible, and explainable** engineering project.
+
+---
+
+## 2. Tech Stack (Industrial + Scientific)
+
+### Core Scientific Computing
 - Python 3.11+
-- NumPy – vectors, matrices, manual stats, broadcasting
-- Matplotlib / Seaborn – intuition-first plots
+- NumPy
+- Matplotlib
+- Seaborn
 
-**Deep Learning**
-- PyTorch – tensors, autograd, optimizers (SGD/Adam)
-- Torchvision – MNIST dataset & transforms
+### Machine Learning / Deep Learning
+- PyTorch
+- Torchvision
+- scikit-learn
+- pandas
 
-**ML utilities**
-- scikit-learn – scaling and metrics
-- pandas – prediction/result exports
-
-**Engineering**
+### Engineering Toolchain
 - pre-commit
 - ruff
 - mypy
 - pytest
 
-No notebooks: everything is script-first to match real codebase workflows.
+### Why this stack?
+- **Scientific validity:** NumPy + statistical foundations make assumptions explicit.
+- **Industrial relevance:** PyTorch + testing/type/lint gates align with modern ML engineering workflows.
+- **Maintainability:** static typing + linting + tests reduce regression risk and speed up refactors.
 
 ---
 
-## 3. Architecture (Mermaid)
+## 3. Technologies Evaluated and Selection Rationale
+| Capability Area | Options Evaluated | Final Choice | Why This Choice |
+|---|---|---|---|
+| Numerical layer | NumPy vs pure Python loops | NumPy | Vectorized operations, reliable scientific semantics, standard ecosystem adoption. |
+| DL framework strategy | PyTorch + TensorFlow comparative lab | PyTorch as primary track | Better transparency and control for custom training loops and optimizer behavior. |
+| Feature scaling and metrics | Manual formulas vs sklearn utilities | Hybrid approach | Manual implementations improve conceptual depth; sklearn utilities improve operational reliability. |
+| Quality policy | Ad-hoc scripts vs unified gate system | `pre-commit` + `ruff` + `mypy` + `pytest` | CI-friendly local enforcement and strong regression prevention. |
+| Performance visibility | No measurement vs benchmark/profiler | Benchmark + optional profiler | Enables evidence-based performance decisions, not anecdotal claims. |
+
+---
+
+## 4. System Architecture (Mermaid)
 ```mermaid
 flowchart LR
-  A["Foundations Modules"] --> B["Quality Gates"]
+  A["Foundation Modules"] --> B["Quality Gates"]
   B --> C["Ruff + Mypy + Pytest"]
-  C --> D["Report Generator"]
+  C --> D["Artifact Pipeline"]
   D --> E["0-foundations/output/reports/foundation_summary.json"]
   D --> F["0-foundations/output/reports/foundation_summary.md"]
   A --> G["Training Pipelines"]
@@ -63,12 +79,12 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-  S["Start Training"] --> R{"Resume Checkpoint?"}
-  R -- "Yes" --> L["Load Model/Optimizer/Scaler"]
+  S["Start Training"] --> R{"Resume from Checkpoint?"}
+  R -- "Yes" --> L["Load Model/Optimizer/Scaler State"]
   R -- "No" --> I["Initialize Fresh State"]
   L --> T["Train Epoch (AMP optional)"]
   I --> T
-  T --> V["Validate"]
+  T --> V["Validation"]
   V --> C["Save latest checkpoint"]
   C --> B{"Validation improved?"}
   B -- "Yes" --> K["Save best checkpoint"]
@@ -76,63 +92,117 @@ flowchart TD
   K --> E
   E -- "No" --> T
   E -- "Yes" --> P["Load best checkpoint"]
-  P --> X["Run final test + export metrics"]
+  P --> X["Final test + export metrics"]
 ```
 
 ---
 
-## 4. Project Structure
-
+## 5. Project Structure
 ```text
-0-foundations/
-  ├─ src/
-  │   ├─ numpy_basics.py
-  │   ├─ linear_algebra_demo.py
-  │   ├─ stats_basics.py
-  │   ├─ gradient_descent_demo.py
-  │   ├─ numpy_manual_stats.py
-  │   ├─ numerical_stability.py
-  │   ├─ benchmark_numpy_vs_torch_cpu.py
-  │   ├─ torch_autograd_gd.py
-  │   ├─ torch_mlp_mnist.py
-  │   ├─ torch_mnist_inference.py
-  │   ├─ save_mnist_sample.py
-  │   ├─ torch_lstm_timeseries.py
-  │   └─ tf_lab/
-  │
-  ├─ tests/
-  ├─ scripts/
-  │   └─ generate_foundation_report.py
-  ├─ docs/
-  │   └─ numerical_stability.md
-  ├─ output/
-  │   ├─ mnist/
-  │   ├─ timeseries/
-  │   ├─ benchmarks/
-  │   └─ reports/
-  ├─ models/
-  ├─ pyproject.toml
-  ├─ .pre-commit-config.yaml
-  ├─ requirements.txt
-  └─ requirements-dev.txt
+ML-zero-to-hero/
+  ├─ README.md
+  ├─ 0-foundations/
+  │   ├─ src/
+  │   │   ├─ numpy_basics.py
+  │   │   ├─ linear_algebra_demo.py
+  │   │   ├─ stats_basics.py
+  │   │   ├─ gradient_descent_demo.py
+  │   │   ├─ numpy_manual_stats.py
+  │   │   ├─ numerical_stability.py
+  │   │   ├─ benchmark_numpy_vs_torch_cpu.py
+  │   │   ├─ torch_autograd_gd.py
+  │   │   ├─ torch_mlp_mnist.py
+  │   │   ├─ torch_mnist_inference.py
+  │   │   ├─ torch_lstm_timeseries.py
+  │   │   └─ tf_lab/
+  │   ├─ tests/
+  │   ├─ scripts/
+  │   │   └─ generate_foundation_report.py
+  │   ├─ docs/
+  │   │   └─ numerical_stability.md
+  │   ├─ output/
+  │   │   ├─ mnist/
+  │   │   ├─ timeseries/
+  │   │   ├─ benchmarks/
+  │   │   └─ reports/
+  │   ├─ models/
+  │   ├─ pyproject.toml
+  │   ├─ .pre-commit-config.yaml
+  │   ├─ requirements.txt
+  │   └─ requirements-dev.txt
 ```
-
-> Note: large/binary artifacts (full datasets, checkpoints, generated outputs) are ignored by git.
 
 ---
 
-## 5. Setup
+## 6. Empirical Metrics (Saved Artifacts)
+Sources:
+- `0-foundations/output/reports/foundation_summary.json`
+- `0-foundations/src/output/mnist/mnist_training_metrics.json`
+- `0-foundations/output/timeseries/lstm_predictions_vs_true.csv`
 
+### Quality Metrics
+- Total tests: `39`
+- Passed: `25`
+- Skipped: `14`
+- Failures: `0`
+- Errors: `0`
+
+### MNIST MLP Snapshot
+- Final train loss: `0.0496`
+- Final train accuracy: `98.51%`
+- Final validation loss: `0.0974`
+- Final validation accuracy: `97.17%`
+
+### Time-Series Forecasting (Model vs Baseline)
+- LSTM MSE: `178.63`
+- Naive last-value baseline MSE: `262.86`
+- Absolute delta: `-84.23`
+- Relative improvement: `32.04%` 📈
+
+### CPU Benchmark Snapshot
+- Backend: `numpy`
+- Matrix size: `256 x 256`
+- Repetitions: `8`
+- Total time: `0.0002109 sec`
+- Average iteration time: `2.636e-05 sec`
+- Peak RSS memory: `32.89 MB`
+
+---
+
+## 7. Challenges and How They Were Solved
+### Challenge 1: Educational scripts were hard to scale
+- Risk: inconsistent code quality and weak maintainability.
+- Solution: unified policy gate (`pre-commit`, lint, type check, tests).
+
+### Challenge 2: Numerical instability in optimization
+- Risk: overflow, non-finite values, unstable gradients.
+- Solution: stable math primitives + gradient clipping + dedicated tests.
+
+### Challenge 3: Interrupted training lifecycle
+- Risk: experiment loss and poor reproducibility.
+- Solution: checkpoint lifecycle (`latest`, `best`) + resume support.
+
+### Challenge 4: Weak traceability of project claims
+- Risk: README claims become unverifiable.
+- Solution: deterministic report generation with persisted artifacts.
+
+### Challenge 5: Silent source expansion without test ownership
+- Risk: code added without accountability.
+- Solution: module inventory test and broader test coverage.
+
+---
+
+## 8. How to Run the Project
 From repository root:
 
 ```bash
 cd 0-foundations
 python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
+source .venv/bin/activate
 pip install -r requirements-dev.txt
 ```
 
-Run quality gates:
+Run quality checks:
 
 ```bash
 cd 0-foundations
@@ -142,242 +212,33 @@ mypy --config-file pyproject.toml src tests
 python -m pytest -q tests
 ```
 
-Generate reproducible report artifacts:
+Generate reproducible reports:
 
 ```bash
 cd 0-foundations
 python scripts/generate_foundation_report.py
 ```
 
----
+Run major pipelines:
 
-## 6. Classic Foundations (NumPy + Math)
-
-These scripts are not toys; they build the mental model used later in sklearn/PyTorch pipelines.
-
-### 6.1 `numpy_basics.py` – Arrays, dot, matmul, broadcasting
-**Problem:** Build intuition for `ndarray` shapes and core linear operations.
-
-Covers:
-- 1D and 2D arrays
-- shape/dtype inspection
-- manual vs NumPy dot product
-- matrix multiplication (`@`)
-- transpose
-- broadcasting rules
-
-Run:
-```bash
-cd 0-foundations
-python -m src.numpy_basics
-```
-
-### 6.2 `linear_algebra_demo.py` – Solving Ax=b, det, inverse, eigen
-**Problem:** Understand linear systems and matrix transformations.
-
-Covers:
-- `np.linalg.solve`
-- determinant and inverse
-- eigenvalues/eigenvectors
-- numerical check: `A @ v ≈ λv`
-
-Run:
-```bash
-cd 0-foundations
-python -m src.linear_algebra_demo
-```
-
-### 6.3 `stats_basics.py` – Descriptive stats + plots
-**Problem:** Connect statistics to visual intuition.
-
-Covers:
-- synthetic normal-like data generation
-- mean / variance / std
-- covariance and correlation
-- histograms and scatter plots
-
-Run:
-```bash
-cd 0-foundations
-python -m src.stats_basics
-```
-
-### 6.4 `gradient_descent_demo.py` – 1D gradient descent by hand
-**Problem:** See optimization as iterative updates, not just formulas.
-
-Objective:
-- \( f(w) = (w - 3)^2 \)
-- \( f'(w) = 2(w - 3) \)
-
-Run:
-```bash
-cd 0-foundations
-python -m src.gradient_descent_demo
-```
-
-### 6.5 `numpy_manual_stats.py` – Manual stats and standardization
-**Problem:** Remove “magic” from `mean/var/std` and feature scaling.
-
-Covers:
-- `manual_mean`, `manual_variance`, `manual_std`
-- `standardize_1d`
-- `standardize_features` (column-wise)
-
-Run:
-```bash
-cd 0-foundations
-python -m src.numpy_manual_stats
-```
-
-Why it matters:
-- You understand exactly what `StandardScaler` does and how leakage happens when train/test statistics are mixed.
-
----
-
-## 7. Deep Learning Fundamentals (PyTorch)
-
-### 7.1 `torch_autograd_gd.py` – Gradient descent with autograd + optim
-**Problem:** Rebuild manual GD using PyTorch autograd mechanics.
-
-Run:
-```bash
-cd 0-foundations
-python -m src.torch_autograd_gd
-```
-
-### 7.2 `torch_mlp_mnist.py` – MLP on MNIST (engineering-grade)
-**Problem:** Build a full training pipeline on a real dataset.
-
-Core model:
-- MLP: `784 -> [256, 128] -> 10`
-- Loss: `CrossEntropyLoss`
-- Optimizer: `Adam`
-
-Engineering features added:
-- mixed precision (AMP)
-- early stopping
-- checkpointing (`latest` + `best`)
-- resume training
-- optional PyTorch profiler traces
-
-Run:
 ```bash
 cd 0-foundations
 python -m src.torch_mlp_mnist
 python -m src.torch_mlp_mnist --resume-from models/mnist_mlp_latest.pt
 python -m src.torch_mlp_mnist --profile --profile-steps 120
-```
-
-### 7.3 `torch_mnist_inference.py` – Single-image inference
-**Problem:** Demonstrate clean inference path after training.
-
-Run:
-```bash
-cd 0-foundations
-python -m src.torch_mnist_inference --index 42
-python -m src.torch_mnist_inference --image-path src/digit_42.png
-```
-
-### 7.4 `torch_lstm_timeseries.py` – LSTM vs naive baseline
-**Problem:** Show sequence modeling with proper baseline and leakage-safe preprocessing.
-
-Pipeline:
-- synthetic series generation
-- time-based split (no shuffle leakage)
-- scaler fit on train only
-- sliding windows
-- LSTM forecast vs naive last-value baseline
-
-Run:
-```bash
-cd 0-foundations
 python -m src.torch_lstm_timeseries
 ```
 
 ---
 
-## 8. Technologies Evaluated and Why
-| Area | Options Tried | Final Choice | Why |
-|---|---|---|---|
-| Core numerics | NumPy | NumPy | Transparent, fast, and ideal for first-principles teaching. |
-| DL track | PyTorch + TensorFlow lab | PyTorch primary, TensorFlow comparative | Better control for custom training loops and engineering add-ons. |
-| Scaling/metrics | Manual NumPy + sklearn | Mixed | Manual for understanding, sklearn for reliability. |
-| Quality | ad-hoc checks vs unified gates | pre-commit + ruff + mypy + pytest | Consistent guardrails and fewer silent regressions. |
-| Perf visibility | none vs benchmark/profiler | benchmark + optional profiler | Objective runtime/memory and bottleneck visibility. |
+## 9. Resume-Ready Impact Summary
+- Designed a robust ML foundations platform with industrial quality controls and reproducible artifact pipelines.
+- Combined scientific rigor (statistics, optimization, numerical stability) with engineering reliability (typing, linting, tests, checkpointing).
+- Produced measurable baseline-driven forecasting gains and documented reproducible metrics for interview-grade technical communication. ✅
 
 ---
 
-## 9. Real Metrics (Saved Artifacts)
-Source files:
-- `0-foundations/output/reports/foundation_summary.json`
-- `0-foundations/src/output/mnist/mnist_training_metrics.json`
-- `0-foundations/output/timeseries/lstm_predictions_vs_true.csv`
-
-Quality metrics:
-- Test suite: `39`
-- Passed: `25`
-- Skipped: `14`
-- Failures: `0`
-- Errors: `0`
-
-MNIST metrics (5 epochs snapshot):
-- Final train loss: `0.0496`
-- Final train accuracy: `98.51%`
-- Final validation loss: `0.0974`
-- Final validation accuracy: `97.17%`
-
-Time-series metrics:
-- LSTM MSE: `178.63`
-- Naive baseline MSE: `262.86`
-- Delta: `-84.23` (better)
-- Relative improvement: `32.04%`
-
-Benchmark snapshot (current environment):
-- Backend: `numpy`
-- Matrix size: `256 x 256`
-- Repetitions: `8`
-- Total time: `0.0002109 sec`
-- Avg time/iter: `2.636e-05 sec`
-- Peak RSS memory: `32.89 MB`
-
----
-
-## 10. Challenges and Fixes
-- Problem: educational scripts were hard to maintain.
-- Fix: shared configs and unified quality gates.
-
-- Problem: overflow and unstable gradients.
-- Fix: stable log-sum-exp, stable softmax, gradient clipping + tests.
-
-- Problem: brittle training after interruptions.
-- Fix: checkpoint lifecycle and resume support.
-
-- Problem: README claims lacked reproducible evidence.
-- Fix: deterministic report generation and persisted artifacts.
-
-- Problem: repository growth could bypass tests.
-- Fix: module inventory checks.
-
----
-
-## 11. Resume-Ready Highlights
-- Built an engineering-grade ML foundations project with unified lint/type/test gates.
-- Implemented numerical stability safeguards and validated them with automated tests.
-- Added training lifecycle controls: AMP, early stopping, checkpointing, resume, profiler.
-- Quantified baseline-driven forecasting gains (`32.04%` MSE improvement vs naive).
-- Added reproducible reporting so claims are backed by machine-readable artifacts.
-
----
-
-## 12. Notes
-- `0-foundations/src/tf_lab` is an optional comparative TensorFlow track.
-- Some tests are skipped when optional dependencies are unavailable.
-- Coverage reporting works when `coverage` exists in the active Python environment.
-
----
-
-## 13. License
-
+## License
 ```text
 MIT License
 
