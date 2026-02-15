@@ -13,16 +13,15 @@ Run:
 """
 
 import numpy as np
-from pathlib import Path
 
 
-def print_section(title: str):
+def print_section(title: str) -> None:
     print("\n" + "=" * 60)
     print(title)
     print("=" * 60)
 
 
-def main():
+def main() -> None:
     # --------------------------------
     # 1) Define a 2x2 matrix A and a vector b
     # --------------------------------

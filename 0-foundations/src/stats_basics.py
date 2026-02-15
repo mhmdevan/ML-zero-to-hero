@@ -30,13 +30,13 @@ def ensure_plots_dir() -> Path:
     return plots_dir
 
 
-def print_section(title: str):
+def print_section(title: str) -> None:
     print("\n" + "=" * 60)
     print(title)
     print("=" * 60)
 
 
-def main():
+def main() -> None:
     plots_dir = ensure_plots_dir()
 
     # --------------------------------

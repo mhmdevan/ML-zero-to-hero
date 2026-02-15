@@ -17,14 +17,14 @@ import numpy as np
 from pathlib import Path
 
 
-def print_section(title: str):
+def print_section(title: str) -> None:
     """Helper function to print a readable section header."""
     print("\n" + "=" * 60)
     print(title)
     print("=" * 60)
 
 
-def save_array_as_text(array: np.ndarray, file_path: Path, header: str = ""):
+def save_array_as_text(array: np.ndarray, file_path: Path, header: str = "") -> None:
     """
     Save a numpy array to a .txt file for inspection.
 
@@ -42,7 +42,7 @@ def save_array_as_text(array: np.ndarray, file_path: Path, header: str = ""):
     print(f"[FILE] Saved array to {file_path}")
 
 
-def main():
+def main() -> None:
     # --------------------------------
     # 1) Creating simple vectors
     # --------------------------------

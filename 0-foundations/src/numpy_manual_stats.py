@@ -97,11 +97,13 @@ def manual_variance(x, axis: int | None = None, ddof: int = 0) -> np.ndarray | f
     arr = np.asarray(x, dtype=float)
     mean_value = manual_mean(arr, axis=axis)
 
-    # Broadcasting:
-    # - If axis is None, mean_value is scalar → arr - mean_value works on all elements.
-    # - If axis=0, mean_value has shape (n_features,) and will be subtracted row-wise.
-    # - If axis=1, mean_value has shape (n_samples,) and will be subtracted column-wise.
-    diffs = arr - mean_value
+    # For axis-specific variance, expand dims so broadcasting lines up correctly:
+    # - axis=0 => means shape (1, n_features), subtract row-wise
+    # - axis=1 => means shape (n_samples, 1), subtract column-wise
+    if axis is None:
+        diffs = arr - mean_value
+    else:
+        diffs = arr - np.expand_dims(np.asarray(mean_value), axis=axis)
     squared = diffs ** 2
 
     if axis is None:
@@ -137,7 +139,11 @@ def manual_std(x, axis: int | None = None, ddof: int = 0) -> np.ndarray | float:
 # Standardization
 # ---------------------------------------------------------------------------
 
-def standardize_1d(x, ddof: int = 0, eps: float = 1e-8):
+def standardize_1d(
+    x,
+    ddof: int = 0,
+    eps: float = 1e-8,
+) -> tuple[np.ndarray, float, float]:
     """
     Standardize a 1D array: z = (x - mean) / std.
 
@@ -163,8 +169,8 @@ def standardize_1d(x, ddof: int = 0, eps: float = 1e-8):
     if arr.ndim != 1:
         raise ValueError("standardize_1d expects a 1D array.")
 
-    mean_value = manual_mean(arr)
-    std_value = manual_std(arr, ddof=ddof)
+    mean_value = float(manual_mean(arr))
+    std_value = float(manual_std(arr, ddof=ddof))
 
     # Protect against zero (or extremely small) std
     if std_value < eps:
@@ -176,7 +182,11 @@ def standardize_1d(x, ddof: int = 0, eps: float = 1e-8):
     return z, mean_value, std_value
 
 
-def standardize_features(X, ddof: int = 0, eps: float = 1e-8):
+def standardize_features(
+    X,
+    ddof: int = 0,
+    eps: float = 1e-8,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Standardize a 2D array of shape (n_samples, n_features) along axis=0.
 
@@ -210,8 +220,8 @@ def standardize_features(X, ddof: int = 0, eps: float = 1e-8):
         )
 
     # Column-wise mean and std → axis=0
-    means = manual_mean(arr, axis=0)
-    stds = manual_std(arr, axis=0, ddof=ddof)
+    means = np.asarray(manual_mean(arr, axis=0), dtype=float)
+    stds = np.asarray(manual_std(arr, axis=0, ddof=ddof), dtype=float)
 
     # Avoid division by zero: if a feature has std ≈ 0, we keep it unscaled
     stds_safe = np.where(stds < eps, 1.0, stds)

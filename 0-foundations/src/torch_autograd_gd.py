@@ -12,11 +12,11 @@ Goal:
 
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass
 
 import torch
 from torch import nn
+from torch.optim import Optimizer
 
 
 # -----------------------------
@@ -80,9 +80,11 @@ def run_manual_gd(cfg: GDConfig, device: torch.device = torch.device("cpu")) -> 
         loss.backward()
 
         # Gradient descent update
+        assert w.grad is not None
+        assert b.grad is not None
         with torch.no_grad():
-            w -= cfg.lr * w.grad
-            b -= cfg.lr * b.grad
+            w.copy_(w - cfg.lr * w.grad)
+            b.copy_(b - cfg.lr * b.grad)
 
         if step % 20 == 0 or step == 1:
             print(
@@ -117,6 +119,7 @@ def run_nn_linear_gd(
     model = nn.Linear(in_features=1, out_features=1, bias=True).to(device)
     criterion = nn.MSELoss()
 
+    optimizer: Optimizer
     if optimizer_name.lower() == "sgd":
         optimizer = torch.optim.SGD(model.parameters(), lr=cfg.lr)
     elif optimizer_name.lower() == "adam":

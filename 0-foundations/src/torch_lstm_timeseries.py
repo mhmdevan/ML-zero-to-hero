@@ -196,7 +196,7 @@ class SalesLSTM(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x: (batch, seq_len, input_size)
-        out, (h_n, c_n) = self.lstm(x)
+        out, _ = self.lstm(x)
         # We only need the last time step's hidden state
         last_hidden = out[:, -1, :]  # (batch, hidden_size)
         y_pred = self.fc(last_hidden)  # (batch, 1)

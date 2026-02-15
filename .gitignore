@@ -81,11 +81,11 @@ models/
 # MLflow local runs directory
 mlruns/
 
-# DVC/other temp (if you add DVC later)
-*.dvc
-.dvc/
-.dag/
-.cache_dvc/
+# # DVC/other temp (if you add DVC later)
+# *.dvc
+# .dvc/
+# .dag/
+# .cache_dvc/
 
 # -----------------------------
 # Outputs / reports
@@ -112,3 +112,10 @@ output/**/*
 .env.*
 *.env
 docker-compose.override.yml
+
+# -----------------------------
+# Nested project artifacts
+# -----------------------------
+# Some subprojects store generated files under src/ (e.g. src/data, src/output)
+*/src/data/**/*
+*/src/output/**/*

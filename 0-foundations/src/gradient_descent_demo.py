@@ -23,13 +23,13 @@ def ensure_plots_dir() -> Path:
     return plots_dir
 
 
-def print_section(title: str):
+def print_section(title: str) -> None:
     print("\n" + "=" * 60)
     print(title)
     print("=" * 60)
 
 
-def f(w: float) -> float:
+def f(w: float | np.ndarray) -> float | np.ndarray:
     """Objective function: f(w) = (w - 3)^2."""
     return (w - 3.0) ** 2
 
@@ -43,7 +43,7 @@ def run_gradient_descent(
     w_init: float,
     learning_rate: float,
     n_steps: int,
-):
+) -> tuple[list[float], list[float]]:
     """
     Run gradient descent on f(w) starting from w_init.
 
@@ -65,18 +65,18 @@ def run_gradient_descent(
     """
     w = w_init
     history_w = [w]
-    history_f = [f(w)]
+    history_f = [float(f(w))]
 
-    for step in range(n_steps):
+    for _ in range(n_steps):
         g = grad_f(w)              # gradient at current w
         w = w - learning_rate * g  # gradient descent update
         history_w.append(w)
-        history_f.append(f(w))
+        history_f.append(float(f(w)))
 
     return history_w, history_f
 
 
-def main():
+def main() -> None:
     plots_dir = ensure_plots_dir()
 
     print_section("1) Gradient descent on f(w) = (w - 3)^2")

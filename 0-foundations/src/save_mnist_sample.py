@@ -1,14 +1,23 @@
 # save_mnist_sample.py
+import os
 from pathlib import Path
 
-import torch
 from torchvision import datasets, transforms, utils
 
 
-def main() -> None:
+def resolve_paths() -> tuple[Path, Path]:
     project_root = Path(__file__).resolve().parent
-    data_dir = project_root / "data"
-    output_path = project_root / "digit_42.png" 
+
+    data_dir_raw = os.getenv("FOUNDATIONS_MNIST_DATA_DIR")
+    output_path_raw = os.getenv("FOUNDATIONS_MNIST_SAMPLE_OUTPUT")
+
+    data_dir = Path(data_dir_raw) if data_dir_raw else (project_root / "data")
+    output_path = Path(output_path_raw) if output_path_raw else (project_root / "digit_42.png")
+    return data_dir, output_path
+
+
+def main() -> None:
+    data_dir, output_path = resolve_paths()
 
     transform = transforms.ToTensor()
 
@@ -19,7 +28,7 @@ def main() -> None:
         transform=transform,
     )
 
-    index = 42  
+    index = 42
     img_tensor, label = test_dataset[index]  # img: [1, 28, 28]
 
     print(f"[INFO] Selected sample index={index}, true label={label}")
