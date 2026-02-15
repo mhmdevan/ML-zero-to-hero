@@ -1,571 +1,386 @@
 # 🧠 ML Project 0 – Python, Math & PyTorch Foundations
 
-End-to-end **foundations for Machine Learning** in pure Python and PyTorch, written as small, focused scripts (no notebooks).  
-Goal: not just “run ML”, but **understand the building blocks** you will keep reusing in all later projects.
+End-to-end **foundations for Machine Learning** in pure Python and PyTorch, written as small, focused scripts (no notebooks).
 
-This repo has two big parts:
+Goal: not just “run ML”, but **understand the building blocks** you will keep reusing in later projects, while keeping the codebase **engineering-grade** and interview-ready.
 
-- **Classic foundations (NumPy + math)**  
-  Vectors, matrices, manual statistics, standardization, 1D gradient descent.
-- **Deep Learning fundamentals (PyTorch)**  
-  Autograd demo, an MLP on MNIST, and an LSTM on a synthetic time series with proper baselines & metrics.
-
-Everything is organized to be **resume-friendly** and easy to explain in an interview:
-
-- What was the **problem**?
-- What **data** did you use?
-- Which **packages/models** did you try and why?
-- What **metrics** did you track?
-- What went wrong (**overfitting / leakage / baselines**) and how did you fix it?
+This repository keeps a single canonical README at the root. The spotlight project is `0-foundations`.
 
 ---
 
-## 1. Tech Stack
+## 1. Problem Statement (Why This Exists)
+Most beginner ML repositories have one core weakness: they demonstrate concepts, but not engineering reliability.
+
+Primary problem:
+- Build a foundations project that is both educational and production-minded, not a collection of disconnected scripts.
+
+Success criteria:
+- One standard quality baseline (`pre-commit`, `ruff`, `mypy`, `pytest`)
+- Reproducible report artifacts with real metrics
+- Clear baseline-first evaluation (not only model loss)
+- Numerical stability practices implemented and tested
+- Training lifecycle controls (mixed precision, early stopping, checkpoint/resume, profiling)
+
+---
+
+## 2. Tech Stack
 
 **Languages & Core libs**
-
 - Python 3.11+
 - NumPy – vectors, matrices, manual stats, broadcasting
-- Matplotlib – basic plots for intuition
+- Matplotlib / Seaborn – intuition-first plots
 
 **Deep Learning**
-
 - PyTorch – tensors, autograd, optimizers (SGD/Adam)
 - Torchvision – MNIST dataset & transforms
 
-**Other**
+**ML utilities**
+- scikit-learn – scaling and metrics
+- pandas – prediction/result exports
 
-- `argparse`, `pathlib`, `json` – for CLI-style scripts and saving metrics
+**Engineering**
+- pre-commit
+- ruff
+- mypy
+- pytest
 
-No notebooks – everything is **script-first**, to look and feel like real code in a codebase.
+No notebooks: everything is script-first to match real codebase workflows.
 
 ---
 
-## 2. Project Structure
+## 3. Architecture (Mermaid)
+```mermaid
+flowchart LR
+  A["Foundations Modules"] --> B["Quality Gates"]
+  B --> C["Ruff + Mypy + Pytest"]
+  C --> D["Report Generator"]
+  D --> E["0-foundations/output/reports/foundation_summary.json"]
+  D --> F["0-foundations/output/reports/foundation_summary.md"]
+  A --> G["Training Pipelines"]
+  G --> H["Metrics + Checkpoints + Plots"]
+  H --> D
+```
+
+```mermaid
+flowchart TD
+  S["Start Training"] --> R{"Resume Checkpoint?"}
+  R -- "Yes" --> L["Load Model/Optimizer/Scaler"]
+  R -- "No" --> I["Initialize Fresh State"]
+  L --> T["Train Epoch (AMP optional)"]
+  I --> T
+  T --> V["Validate"]
+  V --> C["Save latest checkpoint"]
+  C --> B{"Validation improved?"}
+  B -- "Yes" --> K["Save best checkpoint"]
+  B -- "No" --> E{"Early stopping triggered?"}
+  K --> E
+  E -- "No" --> T
+  E -- "Yes" --> P["Load best checkpoint"]
+  P --> X["Run final test + export metrics"]
+```
+
+---
+
+## 4. Project Structure
 
 ```text
 0-foundations/
   ├─ src/
-  │   ├─ numpy_basics.py               # ndarray, dot, matmul, transpose, broadcasting
-  │   ├─ linear_algebra_demo.py        # solving Ax=b, determinant, inverse, eigenvalues/vectors
-  │   ├─ stats_basics.py               # mean, variance, covariance, correlation, normal dist + plots
-  │   ├─ gradient_descent_demo.py      # 1D gradient descent on f(w) = (w - 3)^2
-  │   ├─ numpy_manual_stats.py         # manual mean/var/std + standardization (1D & 2D)
-  │   ├─ torch_gd_autograd.py          # 1D gradient descent re-implemented in PyTorch with autograd + optim
-  │   ├─ torch_mlp_mnist.py            # MLP on MNIST: training loop + metrics saving
-  │   ├─ torch_mnist_inference.py      # inference on a single MNIST image (test set or custom PNG)
-  │   ├─ save_mnist_sample.py          # helper to save a test MNIST digit as PNG (e.g. digit_42.png)
-  │   └─ torch_lstm_timeseries.py      # LSTM on synthetic time-series + naive baseline + metrics/plot
+  │   ├─ numpy_basics.py
+  │   ├─ linear_algebra_demo.py
+  │   ├─ stats_basics.py
+  │   ├─ gradient_descent_demo.py
+  │   ├─ numpy_manual_stats.py
+  │   ├─ numerical_stability.py
+  │   ├─ benchmark_numpy_vs_torch_cpu.py
+  │   ├─ torch_autograd_gd.py
+  │   ├─ torch_mlp_mnist.py
+  │   ├─ torch_mnist_inference.py
+  │   ├─ save_mnist_sample.py
+  │   ├─ torch_lstm_timeseries.py
+  │   └─ tf_lab/
   │
+  ├─ tests/
+  ├─ scripts/
+  │   └─ generate_foundation_report.py
+  ├─ docs/
+  │   └─ numerical_stability.md
   ├─ output/
-  │   ├─ plots/                        # classic stats / GD plots (heights, weights, GD curve, …)
-  │   ├─ mnist/                        # MNIST training metrics (loss/acc vs epoch)
-  │   └─ timeseries/                   # LSTM vs naive baseline CSV + plot of predictions vs true series
-  │
+  │   ├─ mnist/
+  │   ├─ timeseries/
+  │   ├─ benchmarks/
+  │   └─ reports/
   ├─ models/
-  │   └─ mnist_mlp.pt                  # trained MLP checkpoint for MNIST inference (ignored by git)
-  │
-  ├─ data/
-  │   └─ (MNIST will be downloaded here automatically by torchvision)
-  │
+  ├─ pyproject.toml
+  ├─ .pre-commit-config.yaml
   ├─ requirements.txt
-  └─ README.md
+  └─ requirements-dev.txt
 ```
 
-> **Note:** large/binary artifacts (full datasets, `.pt` checkpoints, etc.) are ignored via `.gitignore`.  
-> Only small, human-readable outputs (e.g. plots) are meant to be committed.
+> Note: large/binary artifacts (full datasets, checkpoints, generated outputs) are ignored by git.
 
 ---
 
-## 3. Setup
+## 5. Setup
 
-From the `0-foundations/` directory:
+From repository root:
 
 ```bash
+cd 0-foundations
 python -m venv .venv
-source .venv/bin/activate         # Windows: .venv\Scripts\activate
-
-pip install -r requirements.txt
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
+pip install -r requirements-dev.txt
 ```
 
-Everything runs on CPU – no GPU is required.
+Run quality gates:
+
+```bash
+cd 0-foundations
+pre-commit run --all-files
+ruff check .
+mypy --config-file pyproject.toml src tests
+python -m pytest -q tests
+```
+
+Generate reproducible report artifacts:
+
+```bash
+cd 0-foundations
+python scripts/generate_foundation_report.py
+```
 
 ---
 
-## 4. Classic Foundations (NumPy + Math)
+## 6. Classic Foundations (NumPy + Math)
 
-These scripts are **not toys** – they are the mental model behind everything you will do later with scikit-learn / PyTorch.
+These scripts are not toys; they build the mental model used later in sklearn/PyTorch pipelines.
 
-### 4.1 `numpy_basics.py` – Arrays, dot, matmul, broadcasting
+### 6.1 `numpy_basics.py` – Arrays, dot, matmul, broadcasting
+**Problem:** Build intuition for `ndarray` shapes and core linear operations.
 
-**Problem:** Get comfortable with `ndarray` shapes and core operations.
+Covers:
+- 1D and 2D arrays
+- shape/dtype inspection
+- manual vs NumPy dot product
+- matrix multiplication (`@`)
+- transpose
+- broadcasting rules
 
-**What it covers**
-
-- Creating 1D and 2D arrays
-- Inspecting shapes and dtypes
-- Dot product vs manual sum of element-wise products
-- Matrix multiplication with `@`
-- Transpose `.T`
-- Broadcasting rules when adding row/column vectors to matrices
-
-**Run:**
-
+Run:
 ```bash
+cd 0-foundations
 python -m src.numpy_basics
 ```
 
-This prints shapes and example computations and saves small matrix dumps (if configured) into `output/` (or `plots/` in older versions).
+### 6.2 `linear_algebra_demo.py` – Solving Ax=b, det, inverse, eigen
+**Problem:** Understand linear systems and matrix transformations.
 
----
+Covers:
+- `np.linalg.solve`
+- determinant and inverse
+- eigenvalues/eigenvectors
+- numerical check: `A @ v ≈ λv`
 
-### 4.2 `linear_algebra_demo.py` – Solving Ax = b, det, inverse, eigen
-
-**Problem:** Build intuition for linear systems and transformations.
-
-**What it covers**
-
-- Constructing a 2×2 (or 3×3) matrix `A` and vector `b`
-- Solving `Ax = b` via `np.linalg.solve`
-- Computing determinant `np.linalg.det(A)`
-- Inverse `A_inv = np.linalg.inv(A)` and checking `A @ A_inv ≈ I`
-- Eigenvalues & eigenvectors of `A`, checking `A @ v ≈ λ v`
-
-**Run:**
-
+Run:
 ```bash
+cd 0-foundations
 python -m src.linear_algebra_demo
 ```
 
-This script prints all intermediate results with clear labels so you can see the linear algebra steps.
+### 6.3 `stats_basics.py` – Descriptive stats + plots
+**Problem:** Connect statistics to visual intuition.
 
----
+Covers:
+- synthetic normal-like data generation
+- mean / variance / std
+- covariance and correlation
+- histograms and scatter plots
 
-### 4.3 `stats_basics.py` – Basic statistics + plots
-
-**Problem:** Understand basic descriptive statistics on synthetic data.
-
-**What it covers**
-
-- Sampling synthetic heights and weights from (approx.) normal distributions
-- Computing mean, variance, standard deviation
-- Covariance & correlation between height and weight
-- Plotting:
-  - histogram of heights
-  - histogram of weights
-  - scatter plot of height vs weight
-
-**Run:**
-
+Run:
 ```bash
+cd 0-foundations
 python -m src.stats_basics
 ```
 
-**Outputs (saved into `output/plots/`):**
+### 6.4 `gradient_descent_demo.py` – 1D gradient descent by hand
+**Problem:** See optimization as iterative updates, not just formulas.
 
-- `hist_heights.png` – height distribution
-- `hist_weights.png` – weight distribution
-- `scatter_height_vs_weight.png` – correlation visualized
-
-These plots are perfect to embed into README or slides when explaining basic stats.
-
----
-
-### 4.4 `gradient_descent_demo.py` – 1D Gradient Descent by hand
-
-**Problem:** See gradient descent as numbers moving, not just a formula.
-
-**Objective function**
-
+Objective:
 - \( f(w) = (w - 3)^2 \)
-- derivative \( f'(w) = 2(w - 3) \)
+- \( f'(w) = 2(w - 3) \)
 
-**What it does**
-
-- Initialize `w` at some value (e.g. `w_init = -5`)
-- Run a loop:
-
-  ```python
-  w = w - lr * grad(w)
-  ```
-
-- Log the value of `w` and `f(w)` across iterations
-- Plot the curve + the points of gradient descent moving towards the minimum at `w = 3`
-
-**Run:**
-
+Run:
 ```bash
+cd 0-foundations
 python -m src.gradient_descent_demo
 ```
 
-**Output:**
+### 6.5 `numpy_manual_stats.py` – Manual stats and standardization
+**Problem:** Remove “magic” from `mean/var/std` and feature scaling.
 
-- `output/plots/gradient_descent_1d.png` – red dots walking down a quadratic bowl towards `w = 3`.
+Covers:
+- `manual_mean`, `manual_variance`, `manual_std`
+- `standardize_1d`
+- `standardize_features` (column-wise)
 
-This is the mental template for every later optimization (linear regression, logistic regression, neural nets).
-
----
-
-### 4.5 `numpy_manual_stats.py` – Manual stats & standardization (Project 0.2)
-
-**Problem:** Stop treating `np.mean`, `np.var`, `StandardScaler` as “magic”.
-
-**Key functions implemented using only basic NumPy:**
-
-- `manual_mean(x, axis=None)`
-- `manual_variance(x, axis=None, ddof=0)`
-- `manual_std(x, axis=None, ddof=0)`
-- `standardize_1d(x)` – z-score for 1D
-- `standardize_features(X)` – column-wise standardization for 2D `(n_samples, n_features)`
-
-**What it demonstrates**
-
-1. Creates a synthetic matrix `X` with shape `(n_samples, n_features)`.
-2. Compares manual stats vs NumPy built-ins:
-
-   ```text
-   Means:
-     manual_mean_0 = ...
-     numpy_mean_0  = ...
-     difference    = ...
-   ```
-
-3. Shows how `axis=0` vs `axis=1` behave.
-4. Applies standardization per column and checks that:
-   - standardized columns have mean ≈ 0
-   - and std ≈ 1
-
-**Run:**
-
+Run:
 ```bash
+cd 0-foundations
 python -m src.numpy_manual_stats
 ```
 
-**Why it matters**
-
-- Later, when you see:
-
-  ```python
-  scaler = StandardScaler()
-  X_scaled = scaler.fit_transform(X_train)
-  ```
-
-  you know it’s just:
-
-  \[ z = \frac{x - \mu}{\sigma} \]
-
-  applied **per feature**, with means/stds computed on **training data only** (to avoid data leakage).
+Why it matters:
+- You understand exactly what `StandardScaler` does and how leakage happens when train/test statistics are mixed.
 
 ---
 
-## 5. Deep Learning Fundamentals (PyTorch)
+## 7. Deep Learning Fundamentals (PyTorch)
 
-Here we **re-build** some of the above concepts using PyTorch:
+### 7.1 `torch_autograd_gd.py` – Gradient descent with autograd + optim
+**Problem:** Rebuild manual GD using PyTorch autograd mechanics.
 
-- tensors instead of ndarrays,
-- autograd instead of manual derivatives,
-- simple models (MLP, LSTM) with proper baselines & metrics.
-
-### 5.1 `torch_gd_autograd.py` – Gradient Descent with autograd + optim
-
-**Problem:** Show how PyTorch’s autograd + optimizers reproduce manual GD.
-
-**What it does**
-
-- Defines the same 1D function: \( f(w) = (w - 3)^2 \)
-- Creates a scalar parameter `w = torch.tensor(..., requires_grad=True)`
-- In each step:
-  - calls `loss.backward()` to compute `w.grad`
-  - calls `optimizer.step()` (e.g. SGD)
-  - zeros gradients with `optimizer.zero_grad()`
-
-**Run:**
-
+Run:
 ```bash
-python -m src.torch_gd_autograd
+cd 0-foundations
+python -m src.torch_autograd_gd
 ```
 
-**Why this is important**
+### 7.2 `torch_mlp_mnist.py` – MLP on MNIST (engineering-grade)
+**Problem:** Build a full training pipeline on a real dataset.
 
-- It connects the dots directly to `gradient_descent_demo.py`:
-  - Same function and idea,
-  - But now PyTorch does the derivative and parameter updates.
-- This is the exact pattern you’ll reuse for every deep learning model later.
-
----
-
-### 5.2 `torch_mlp_mnist.py` – MLP on MNIST
-
-**Problem:** Build and train a simple neural network on a real image dataset.
-
-**Model**
-
-- Fully-connected MLP:
-
-  - input: 28×28 = 784 features
-  - hidden layers: e.g. `[256, 128]` with ReLU
-  - output: 10 logits (digits 0–9)
-
-- Loss: `nn.CrossEntropyLoss`
+Core model:
+- MLP: `784 -> [256, 128] -> 10`
+- Loss: `CrossEntropyLoss`
 - Optimizer: `Adam`
 
-**Data**
+Engineering features added:
+- mixed precision (AMP)
+- early stopping
+- checkpointing (`latest` + `best`)
+- resume training
+- optional PyTorch profiler traces
 
-- MNIST from `torchvision.datasets.MNIST`
-  - Train split (60k images)
-  - Test split (10k images)
-
-**What the script does**
-
-1. Downloads MNIST to `data/` (if not present).
-2. Creates `DataLoader`s for train & test.
-3. Runs a training loop for N epochs (configurable).
-4. On each epoch:
-   - logs **train loss**
-   - runs evaluation on test set: **test loss**, **test accuracy**
-5. Saves metrics into `output/mnist/` as JSON/CSV (e.g. one row per epoch).
-6. Saves the final model checkpoint as `models/mnist_mlp.pt` (ignored by git).
-
-**Run:**
-
+Run:
 ```bash
+cd 0-foundations
 python -m src.torch_mlp_mnist
+python -m src.torch_mlp_mnist --resume-from models/mnist_mlp_latest.pt
+python -m src.torch_mlp_mnist --profile --profile-steps 120
 ```
 
-**Sample result (CPU, a few epochs)**
+### 7.3 `torch_mnist_inference.py` – Single-image inference
+**Problem:** Demonstrate clean inference path after training.
 
-- With a simple 2–3 layer MLP and a handful of epochs, you typically get:
-  - Test accuracy ≈ 97–98%
-  - Test loss steadily decreasing
-
-These metrics are saved so you can embed a **training curve** screenshot in your GitHub README.
-
-**Design choices / trade-offs**
-
-- MLP instead of CNN:
-  - simpler to read & explain in a foundations project,
-  - good enough to show how image data is flattened and fed to a dense network.
-- Adam.optimizer:
-  - converges faster and more robust than plain SGD for this toy run,
-  - easier to show quick progress on CPU.
-
----
-
-### 5.3 `torch_mnist_inference.py` – Single-image inference
-
-**Problem:** Not only “train a model”, but also show a clean **inference path**.
-
-**What it does**
-
-- Loads `models/mnist_mlp.pt` and its config (input dim, hidden sizes, num classes).
-- Accepts either:
-  - an index into the MNIST test set (`--index 42`), or
-  - a custom PNG path (`--image-path path/to/digit.png`).
-
-- Preprocesses the image to `[1, 1, 28, 28]` (grayscale, resized, normalized to [0,1]).
-- Runs the MLP and prints:
-  - `predicted_digit`
-  - `predicted_prob` (max softmax probability)
-  - full probability distribution over 10 digits.
-
-**Run with test sample:**
-
+Run:
 ```bash
+cd 0-foundations
 python -m src.torch_mnist_inference --index 42
-```
-
-**Run with custom PNG:**
-First, use the helper script to export a sample:
-
-```bash
-python -m src.save_mnist_sample
-# -> saves e.g. src/digit_42.png
-```
-
-Then:
-
-```bash
 python -m src.torch_mnist_inference --image-path src/digit_42.png
 ```
 
-This mirrors what you did in the spam project (`predict_spam.py`), but now for vision.
+### 7.4 `torch_lstm_timeseries.py` – LSTM vs naive baseline
+**Problem:** Show sequence modeling with proper baseline and leakage-safe preprocessing.
 
----
+Pipeline:
+- synthetic series generation
+- time-based split (no shuffle leakage)
+- scaler fit on train only
+- sliding windows
+- LSTM forecast vs naive last-value baseline
 
-### 5.4 `torch_lstm_timeseries.py` – LSTM vs Naive baseline on synthetic sales
-
-**Problem:** Show how a sequence model behaves on a time series, and **compare it to a naive baseline** (not just raw loss).
-
-**Data**
-
-- A synthetic “monthly sales” time series of length 360, generated as:
-
-  - seasonality (e.g. yearly sinus pattern),
-  - trend + noise,
-  - values scaled to a realistic range (e.g. 70–160).
-
-- Train / test split:
-  - Train: first 288 points
-  - Test: last 72 points (respecting time order – no shuffle).
-
-- We fit a `StandardScaler` **only on the train series** and reuse it for test, to avoid **data leakage**.
-
-**Input windows**
-
-- We build sliding windows of:
-  - `input_window = 30` time steps → model sees 30 past points,
-  - `horizon = 1` → predicts the next 1 step.
-- This creates:
-  - `(train_samples, 30)` for train
-  - `(test_samples, 30)` for test
-
-**Model**
-
-- 1-layer LSTM:
-  - `input_size = 1` (univariate series)
-  - `hidden_size` (configurable, e.g. 32)
-  - `num_layers = 1`
-- Followed by a Linear head to predict one scalar.
-- Loss: MSE
-- Optimizer: Adam
-
-**Baseline**
-
-- Naive “last value” baseline:
-  - prediction for `t+1` = last observed value at `t`.
-- Baseline MSE computed on the **same test horizon**, to make comparison fair.
-
-**Training run**
-
+Run:
 ```bash
+cd 0-foundations
 python -m src.torch_lstm_timeseries
 ```
 
-Example log (with the improved version):
+---
 
-```text
-[INFO] Generated synthetic sales series of length 360 (min=74.65, max=158.35)
-[DATA] Train series length=288, Test series length=72
-[SCALE] Fitted StandardScaler on train series (mean=110.619, std=14.336)
-[DATA] Sliding windows: X.shape=(330, 30), y.shape=(330, 1), input_window=30, horizon=1
-[TRAIN] epoch=120 | train_loss ~ 0.34
-[TEST] LSTM MSE=178.63
-[BASELINE] Naive last-value MSE=262.86
-[RESULT] LSTM MSE=178.63 vs Naive baseline MSE=262.86 (diff=-84.23)
-```
-
-**Outputs**
-
-- `output/timeseries/lstm_predictions_vs_true.csv`  
-  Contains actual vs predicted values for the test range.
-- `output/timeseries/lstm_predictions_plot.png`  
-  A line plot showing:
-  - full series,
-  - train/test split,
-  - LSTM predictions vs true values on test.
-
-**Why this matters in an interview**
-
-- You don’t just “train an LSTM” – you:
-  - build a realistic baseline,
-  - avoid leakage by fitting the scaler on train only,
-  - use proper **time-based split** instead of random,
-  - compare and report both metrics clearly.
+## 8. Technologies Evaluated and Why
+| Area | Options Tried | Final Choice | Why |
+|---|---|---|---|
+| Core numerics | NumPy | NumPy | Transparent, fast, and ideal for first-principles teaching. |
+| DL track | PyTorch + TensorFlow lab | PyTorch primary, TensorFlow comparative | Better control for custom training loops and engineering add-ons. |
+| Scaling/metrics | Manual NumPy + sklearn | Mixed | Manual for understanding, sklearn for reliability. |
+| Quality | ad-hoc checks vs unified gates | pre-commit + ruff + mypy + pytest | Consistent guardrails and fewer silent regressions. |
+| Perf visibility | none vs benchmark/profiler | benchmark + optional profiler | Objective runtime/memory and bottleneck visibility. |
 
 ---
 
-## 6. Design Decisions, Metrics & Typical Pitfalls
+## 9. Real Metrics (Saved Artifacts)
+Source files:
+- `0-foundations/output/reports/foundation_summary.json`
+- `0-foundations/src/output/mnist/mnist_training_metrics.json`
+- `0-foundations/output/timeseries/lstm_predictions_vs_true.csv`
 
-### 6.1 Data shapes and mental model
+Quality metrics:
+- Test suite: `39`
+- Passed: `25`
+- Skipped: `14`
+- Failures: `0`
+- Errors: `0`
 
-Across all scripts, data is consistently shaped as:
+MNIST metrics (5 epochs snapshot):
+- Final train loss: `0.0496`
+- Final train accuracy: `98.51%`
+- Final validation loss: `0.0974`
+- Final validation accuracy: `97.17%`
 
-- **Tabular / vector data:** `(n_samples, n_features)`
-- **Time series:** `(n_samples, input_window, 1)` for LSTM
-- **Images:** `[batch, channels, height, width]` = `[B, 1, 28, 28]` for MNIST
+Time-series metrics:
+- LSTM MSE: `178.63`
+- Naive baseline MSE: `262.86`
+- Delta: `-84.23` (better)
+- Relative improvement: `32.04%`
 
-This consistency makes it easy to move from pure NumPy to PyTorch and later to scikit-learn pipelines.
-
----
-
-### 6.2 Metrics
-
-- **Gradient descent demos:** no explicit numeric metric, but you see:
-  - convergence of `w` to the minimum,
-  - decreasing `f(w)` visually and in logs.
-
-- **MNIST MLP:**
-  - Train loss per epoch
-  - Test loss per epoch
-  - Test accuracy per epoch
-  - Metrics are saved into `output/mnist/…` so you can plot loss/accuracy curves.
-
-- **LSTM time series:**
-  - MSE on **scaled** predictions, rescaled back to original units for human-readable interpretation.
-  - Naive baseline MSE for comparison.
-  - Final summary line:
-
-    ```text
-    [SUMMARY] LSTM MSE=..., Naive MSE=...
-    ```
-
-  so you can quickly see if the model is genuinely useful.
+Benchmark snapshot (current environment):
+- Backend: `numpy`
+- Matrix size: `256 x 256`
+- Repetitions: `8`
+- Total time: `0.0002109 sec`
+- Avg time/iter: `2.636e-05 sec`
+- Peak RSS memory: `32.89 MB`
 
 ---
 
-### 6.3 Data leakage, overfitting, drift – how they appear here
+## 10. Challenges and Fixes
+- Problem: educational scripts were hard to maintain.
+- Fix: shared configs and unified quality gates.
 
-Even in a “foundations” repo, these concepts matter – and you can already talk about them:
+- Problem: overflow and unstable gradients.
+- Fix: stable log-sum-exp, stable softmax, gradient clipping + tests.
 
-- **Data leakage**
-  - MNIST: standard train/test split from torchvision, no leakage.
-  - Time series:
-    - Train/test split respects time order (no shuffle).
-    - StandardScaler is **fit on train only**, then applied to test.
-    - This is explicitly logged and commented in code.
+- Problem: brittle training after interruptions.
+- Fix: checkpoint lifecycle and resume support.
 
-- **Overfitting**
-  - MNIST MLP:
-    - Model is intentionally small (2–3 layers) and trained for a moderate number of epochs.
-    - You can inspect loss/accuracy curves; if train accuracy >> test accuracy, you can talk about reducing capacity or adding regularization.
-  - LSTM:
-    - We started with a shorter series and small window, saw poor performance vs baseline,
-    - then moved to a longer series and more reasonable window size (30), giving a more meaningful comparison.
+- Problem: README claims lacked reproducible evidence.
+- Fix: deterministic report generation and persisted artifacts.
 
-- **Drift**
-  - For MNIST, we assume stationarity (data distribution doesn’t change).
-  - For the synthetic time series, we control the generative process.
-  - In a README / discussion, you can already say:
-    - “In real production, I would monitor distributions of the time series (level, variance, seasonality) and retrain the model when drift is detected.”
-
-This repo doesn’t try to solve drift fully, but it introduces the right **way of thinking**.
+- Problem: repository growth could bypass tests.
+- Fix: module inventory checks.
 
 ---
 
-## 7. How This Project Fits Into the Bigger ML Roadmap
-
-This is **Project 0** in a larger ML roadmap (Sales regression, Spam classifier, User clustering, …).  
-What it gives you:
-
-- Confidence with `ndarray` and tensor shapes.
-- Intuition for gradient descent and standardization.
-- A first full PyTorch training loop + inference path on MNIST.
-- A first sequence model with a real baseline on a time series.
-
-Later projects build on this:
-
-- **Tabular regression/classification** (scikit-learn)
-- **Text classification** (TF-IDF + Linear models)
-- **User clustering** (K-Means + PCA)
-- And eventually **full MLOps v2** projects (DuckDB, MLflow, DVC, Airflow).
+## 11. Resume-Ready Highlights
+- Built an engineering-grade ML foundations project with unified lint/type/test gates.
+- Implemented numerical stability safeguards and validated them with automated tests.
+- Added training lifecycle controls: AMP, early stopping, checkpointing, resume, profiler.
+- Quantified baseline-driven forecasting gains (`32.04%` MSE improvement vs naive).
+- Added reproducible reporting so claims are backed by machine-readable artifacts.
 
 ---
 
-## 8. License
+## 12. Notes
+- `0-foundations/src/tf_lab` is an optional comparative TensorFlow track.
+- Some tests are skipped when optional dependencies are unavailable.
+- Coverage reporting works when `coverage` exists in the active Python environment.
+
+---
+
+## 13. License
 
 ```text
 MIT License
 
-Copyright (c) 2025 Mohammad Eslamnia
+Copyright (c) 2026 Mohammad Eslamnia
 ...
 ```
